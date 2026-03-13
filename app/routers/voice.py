@@ -40,3 +40,25 @@ async def parse_job(payload: ParseTextRequest):
         return parsed
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Parsing failed: {e}")
+
+@router.post("/transcribe-and-parse")
+async def transcribe_and_parse(file: UploadFile = File(...)):
+    suffix = os.path.splitext(file.filename or "audio.webm")[1] or ".webm"
+
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        content = await file.read()
+        tmp.write(content)
+        tmp_path = tmp.name
+
+    try:
+        text = transcribe_audio_file(tmp_path)
+        parsed = parse_job_from_text(text)
+        return {
+            "transcribed_text": text,
+            "parsed_job": parsed
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed: {e}")
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
