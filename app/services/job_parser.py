@@ -43,8 +43,9 @@ def parse_job_from_text(text: str) -> dict:
                 "content": (
                     "Extract job form fields from the user's dictated Serbian text. "
                     "Return only the structured data. "
+                    "Always return Serbian Latin script (never Cyrillic)."
                     "If a field is unknown, return null. "
-                    "Phone numbers should contain only digits and an optional leading +."
+                    "Keep phone numbers exactly as spoken by the user. Do NOT add country codes or modify formatting."
                 ),
             },
             {
